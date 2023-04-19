@@ -1,8 +1,12 @@
 " .vimrc file created for vim
 " by Adam Brandeis
-" last updated: 2020-03-26
+" last updated: 2023-04-19
 
+set runtimepath^=/bhsystematic/users/abrandeis/.vim,$VIMRUNTIME,/bhsystematic/users/abrandeis/.vim/autoload,~/.vim
+set packpath^=/bhsystematic/users/abrandeis/.vim
 set nocompatible                " use vim defaults
+execute pathogen#infect()
+
 syntax on                       " syntax highlighing
 set showcmd                     " display incomplete commands
 set nobackup                    " do not keep a backup file
@@ -15,14 +19,19 @@ set nostartofline               " don't jump to first character when paging
 set whichwrap=b,s,h,l,<,>,[,]   " move freely between files
 "set autowrite                   " auto saves changes when quitting and swiching buffer
 
-set viminfo=%,<800,'10,/50,:100,h,f0,n~/.vim/cache/.viminfo  " larger more detailed viminfo cache
+set viminfo=%,<800,'10,/50,:100,h,f0,n/bhsystematic/users/abrandeis/.vim/cache/.viminfo  " larger more detailed viminfo cache
 "set viminfo='20,<50,s10,h
 
 " ============ SET AWESOME STATUS LINE ============
 set ls=2                        " always show status line
 set statusline=
-set statusline=%h%w%m%r%R%W                    " flags (h:help:[help], w:window:[Preview], m:modified:[+][-], r:readonly:[RO])
+set statusline=%#1#%h%w%m%r%R%W                    " flags (h:help:[help], w:window:[Preview], m:modified:[+][-], r:readonly:[RO])
 set statusline+=\[%{mode()}]                   " current mode
+set statusline+=%#NormalColor#%{(mode()=='n')?'\ \NORMAL\ ':''}
+set statusline+=%#InsertColor#%{(mode()=='i')?'\ \INSERT\ ':''}
+set statusline+=%#ReplaceColor#%{(mode()=='R')?'\ \REPLACE\ ':''}
+set statusline+=%#VisualColor#%{(mode()=='v')?'\ \VISUAL\ ':''}
+
 set statusline+=%4*\ %<%F                      " show full path of filename in status line
 
 set statusline+=\                              " blank space
@@ -39,6 +48,7 @@ set statusline+=\[row\:%(%3l\/%L%)]\           " current row/total num of lines
 set statusline+=%P                             " percentage of the file
 
 set statusline+=%#warningmsg#                  " Syntastic error flag
+"set statusline+=%{SyntasticStatuslineFlag()}
 set statusline+=%*                             " Syntastic error flag
 "set statusline+=%3*%{StatlineTrailingSpaceWarning()}%*
 
@@ -70,6 +80,7 @@ let mapleader=";"    " leader is semi-colon i.e. ;h or ;n
 
 " NUMBERS - enable / disable view NUMBER line
 map <leader>n :set nu!<CR>
+map <F7> :set nu!<CR>
 
 " PASTE - Toggle paste mode - F11 or leader = ;p
 map <leader>p :set invpaste!<CR>
@@ -80,6 +91,7 @@ set pastetoggle=<F11>
 " HIGHLIGHT - turn off search highlight - leader = ;
 " nnoremap <leader><space> :nohlsearch<CR>
 map <leader>h :set hlsearch!<cr>
+map <F8> :set hlsearch!<cr>
 
 " Show all characters
 set listchars=tab:>-,trail:▒,eol:$
@@ -97,6 +109,14 @@ map <F10> :let &background = ( &background == "dark"? "light" : "dark" )<CR>
 " F9 to toggle highlight on off
 "map <F9> :let &highlight = ( &highlight == "off"? "on" : "off" )<CR>
 
+" F12 to toggle mouse on off
+map <F12> :call ToggleMouse() <CR>
+
+" F9 to toggel word wrap on off
+map <F9> :set wrap!<CR>
+
+" Save and quit
+map <leader><F4> gg <CR> :wq <CR>
 
 " ============ Indention Options ==== ON
 set autoindent       " always set autoindenting on.  New lines inherit the indentation of previous lines.
@@ -154,8 +174,8 @@ set novisualbell                " turn off visual bell
 "set tabpagemax=50              " Maximum number of tab pages that can be opened from the command line.
 "set relativenumber             " Show line number on the current line and relative numbers on other lines
 
-"set t_Co=256                   " for setting 256 color term
-set t_Co=16                     " fix for bg being too bright
+set t_Co=256                   " for setting 256 color term
+" set t_Co=16                     " fix for bg being too bright
 
 if has("gui_running")
     " See ~/.gvimrc
@@ -166,8 +186,8 @@ if has("gui_running")
     set selectmode=mouse,key,cmd
     set keymodel=
 else
-"    set background=dark        " adapt colors for background
-    colorscheme plasticCode     " use this color scheme
+    set background=dark        " adapt colors for background
+    colorscheme PlasticCodeWrap     " use this color scheme
     highlight Comment cterm=bold
 endif
 
@@ -220,7 +240,7 @@ augroup configgroup
     autocmd Filetype python set ts=2 shiftwidth=2 expandtab
 
     autocmd BufNewFile,BufRead *.groovy  setf groovy
-    autocmd FileType groovy source ~/.vim/syntax/groovy.vim
+    autocmd FileType groovy source /bhsystematic/users/abrandeis/.vim/syntax/groovy.vim
     autocmd BufWritePre *.php,*.py,*.js,*.txt,*.hs,*.java,*.md
                 \:call <SID>StripTrailingWhitespaces()
 augroup END
@@ -231,6 +251,15 @@ augroup statline_trail
 augroup END
 
 " ============ Functions ============
+
+function! ToggleMouse()
+    if &mouse == ''
+        let &mouse='a'
+    else
+        let &mouse=''
+    endif
+endfunction
+
 
 " strips trailing whitespace at the end of files. this
 " is called on buffer write in the autogroup above.
@@ -270,6 +299,11 @@ endfun
 " https://github.com/millermedeiros/vim-statline/blob/master/plugin/statline.vim
 
 " ====== Syntastic errors ====== integration is enabled by default
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
 
 if !exists('g:statline_syntastic')
     let g:statline_syntastic = 1
@@ -349,10 +383,7 @@ endif
 
 " update ctags:
 " ctags -f ./tags -R ./ctagsfolder/
-"set tags=~/dev/.tags
-set tags=tags,./tags;~/.vim/tags/;  " Search current directory for tags, then up, finally root .vim
-
-set makeprg=~/dev/rtbdb/build_subm
+set tags=tags,./tags;/bhsystematic/users/abrandeis/.vim/tags/;  " Search current directory for tags, then up, finally root .vim
 
 set efm=\ %#[javac]\ %#%f:%l:%c:%*\\d:%*\\d:\ %t%[%^:]%#:%m,
             \%A\ %#[javac]\ %f:%l:\ %m,%-Z\ %#[javac]\ %p^,%-C%.%#
@@ -388,7 +419,7 @@ imap <Esc>Oz 0
 
 "set statusline+=%{SyntasticStatuslineFlag()}  " Syntastic error flag
 "BROKEN IN VIM72"
-"if g:statline_trailing_spaceg:statline_trailing_space
+"if g:statline_trailing_space
 "    set statusline+=%3*%{StatlineTrailingSpaceWarning()}%*
 "
 "    " recalculate when idle, and after saving
@@ -397,3 +428,4 @@ imap <Esc>Oz 0
 "        autocmd cursorhold,bufwritepost * unlet! b:statline_trailing_space_warning
 "    augroup END
 "endif
+
