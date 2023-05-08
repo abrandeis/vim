@@ -2,8 +2,8 @@
 " by Adam Brandeis
 " last updated: 2023-04-19
 
-set runtimepath^=/bhsystematic/users/abrandeis/.vim,$VIMRUNTIME,/bhsystematic/users/abrandeis/.vim/autoload,~/.vim
-set packpath^=/bhsystematic/users/abrandeis/.vim
+set runtimepath^=~/users/abrandeis/.vim,$VIMRUNTIME,/users/abrandeis/.vim/autoload,~/.vim
+set packpath^=~/users/abrandeis/.vim
 set nocompatible                " use vim defaults
 execute pathogen#infect()
 
@@ -19,7 +19,7 @@ set nostartofline               " don't jump to first character when paging
 set whichwrap=b,s,h,l,<,>,[,]   " move freely between files
 "set autowrite                   " auto saves changes when quitting and swiching buffer
 
-set viminfo=%,<800,'10,/50,:100,h,f0,n/bhsystematic/users/abrandeis/.vim/cache/.viminfo  " larger more detailed viminfo cache
+set viminfo=%,<800,'10,/50,:100,h,f0,n/users/abrandeis/.vim/cache/.viminfo  " larger more detailed viminfo cache
 "set viminfo='20,<50,s10,h
 
 " ============ SET AWESOME STATUS LINE ============
