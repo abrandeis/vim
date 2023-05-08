@@ -237,12 +237,13 @@ augroup configgroup
     autocmd BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
 
     autocmd Filetype sh set ts=4 shiftwidth=2 expandtab
-    autocmd Filetype python set ts=2 shiftwidth=2 expandtab
+    autocmd Filetype python set ts=4 shiftwidth=4 expandtab smartindent cinwords=if,elif,else,for,while,try,except,finally,def,class,with
+    autocmd FileType c,cpp,java,php,ruby,python autocmd BufWritePre <buffer> :call <SID>StripTrailingWhitespaces()
 
     autocmd BufNewFile,BufRead *.groovy  setf groovy
     autocmd FileType groovy source /bhsystematic/users/abrandeis/.vim/syntax/groovy.vim
-    autocmd BufWritePre *.php,*.py,*.js,*.txt,*.hs,*.java,*.md
-                \:call <SID>StripTrailingWhitespaces()
+"    autocmd BufWritePre *.php,*.py,*.js,*.txt,*.hs,*.java,*.md
+"                \:call <SID>StripTrailingWhitespaces()
 augroup END
 
 augroup statline_trail
@@ -263,14 +264,22 @@ endfunction
 
 " strips trailing whitespace at the end of files. this
 " is called on buffer write in the autogroup above.
+"fun! <SID>StripTrailingWhitespaces()
+"    " save last search & cursor position
+"    let _s=@/
+"    let l = line(".")
+"    let c = col(".")
+"    %s/\s\+$//e
+"    let @/=_s
+"    call cursor(l, c)
+"endfun
+
 fun! <SID>StripTrailingWhitespaces()
-    " save last search & cursor position
-    let _s=@/
-    let l = line(".")
-    let c = col(".")
-    %s/\s\+$//e
-    let @/=_s
-    call cursor(l, c)
+  if !&binary && &filetype != 'diff'
+    let l:save = winsaveview()
+    keeppatterns %s/\s\+$//e
+    call winrestview(l:save)
+  endif
 endfun
 
 fun! PasteForStatusline()
